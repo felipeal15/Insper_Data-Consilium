@@ -1,5 +1,7 @@
 # PADRONIZAÇÃO DE COLUNAS - ANÁLISE E SOLUÇÃO
 
+Pessoal, isso aqui é basicamente o processo inteiro que eu fiz para organizar as bases de dados, dado que todas estavam muito inconsistentes, algumas bases tinham certas coisas que outras nao tinham, ou os nomes eram altamente diferentes
+
 ## Problema Identificado
 As bases de dados (2022-2025) tinham inconsistências em nomes de colunas:
 1. Mesma coluna com nomes diferentes
