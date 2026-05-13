@@ -1,0 +1,213 @@
+---
+title: "Feminicídio no Estado de São Paulo"
+subtitle: "Análise Quantitativa de Boletins de Ocorrência (2022–2025)"
+author:
+  - "Beatriz Telles Feldberg"
+  - "Felipe Aldrighi de Lima"
+  - "Henrique Almeida Barcelos"
+  - "Lucas Pires Castanho"
+  - "Matheus Tahan Cunha"
+  - "Yamandú Germano Cavalcanti"
+date: "2026-05-12"
+keywords:
+  - feminicídio
+  - violência de gênero
+  - análise espacial
+  - São Paulo
+  - políticas públicas
+  - boletins de ocorrência
+format:
+  pdf:
+    pdf-engine: xelatex
+    papersize: a4
+    geometry:
+      - top=30mm
+      - left=30mm
+      - bottom=20mm
+      - right=20mm
+    fontsize: 12pt
+    linestretch: 1.5
+    mainfont: Arial
+    toc: true
+    number-sections: true
+    lang: pt
+---
+
+# Informações do Projeto
+
+**Projeto:** Feminicídio no Estado de São Paulo — Análise Quantitativa de Boletins de Ocorrência (2022–2025)
+
+**Parceria institucional:** Insper Data (Entidade de Engenharia e Análise de Dados) × Consilium (Entidade de Políticas Públicas)
+
+**Orientadora:** Profa. Maria Kelly Venezuela — Doutora, Mestre e Bacharel em Estatística pela USP; docente de Estatística I, Estatística II e Ciência dos Dados no Insper
+
+**Membros do grupo:** Beatriz Telles Feldberg, Felipe Aldrighi de Lima, Henrique Almeida Barcelos, Lucas Pires Castanho, Matheus Tahan Cunha e Yamandú Germano Cavalcanti
+
+**Entrega de referência:** Relatório Intermediário — 12/05/2026
+
+**Repositório:** <https://github.com/felipeal15/Insper_Data-Consilium>
+
+---
+
+# Resumo
+
+Este relatório documenta a pesquisa em andamento desenvolvida em parceria entre o Insper Data e o Consilium, cujo objetivo central é investigar quais características socioeconômicas dos municípios do estado de São Paulo estão associadas a maiores ou menores taxas de feminicídio. A análise parte de uma base consolidada de 4.792.971 boletins de ocorrência registrados pela Secretaria de Segurança Pública do Estado de São Paulo entre 2022 e 2025, dos quais 1.636 foram identificados como feminicídio. O trabalho percorreu, até o momento, as etapas de coleta, integração e padronização dos dados, análise exploratória descritiva — com ênfase na distribuição temporal e territorial —, revisão de literatura teórica e empírica, e início da construção dos indicadores municipais normalizados. Os resultados descritivos revelam três padrões centrais: uma estabilidade de volume em 2022–2023, um salto expressivo em 2024 e uma forte concentração dos casos no Interior do estado após normalização pela população feminina, evidenciando que a leitura em frequência absoluta distorce significativamente a percepção do fenômeno. As próximas etapas concentram-se na definição do modelo de regressão, na integração das bases socioeconômicas complementares e na construção do mapa interativo final.
+
+---
+
+# Motivação e Contexto
+
+## O Problema
+
+Nas primeiras semanas de março de 2026, manchetes de três agências distintas convergiram para um mesmo diagnóstico perturbador: os processos de feminicídio triplicaram nos últimos cinco anos no Brasil, com crescimento de 3,49% apenas em janeiro daquele ano, segundo dados do Conselho Nacional de Justiça; o número de vítimas reais supera em 38% os registros oficiais, segundo a Agência Brasil; e quatro mulheres são assassinadas por dia no país, em média, de acordo com levantamento do Ministério Público de Mato Grosso. Ainda em janeiro de 2026, o Judiciário registrou 947 novos casos de feminicídio — quase um caso a cada 45 minutos ao longo do mês inteiro.
+
+Esses números posicionam o feminicídio não como um fenômeno marginal ou episódico, mas como uma crise estrutural de segurança pública e de direitos humanos. No estado de São Paulo — maior economia da federação, com a maior população absoluta do país —, a questão assume uma dimensão ainda mais relevante: o estado concentra, ao mesmo tempo, os maiores investimentos em segurança pública e elevados índices de violência letal contra mulheres. Compreender o que explica a variação do fenômeno entre os municípios paulistas, portanto, é tanto um imperativo analítico quanto uma necessidade para a formulação de políticas públicas mais eficazes e territorialmente sensíveis.
+
+## A Pergunta de Pesquisa
+
+A questão que orienta este projeto é:
+
+> **Quais fatores socioeconômicos afetam o índice de feminicídio nos municípios do estado de São Paulo?**
+
+Essa pergunta desdobra-se em subquestões operacionais: como o fenômeno se distribui no território paulista? Existem concentrações geográficas sistemáticas? Quais variáveis municipais se associam a taxas mais altas quando controlamos pelo tamanho populacional? E de que forma fatores como renda, educação, urbanização, laços comunitários e acesso a serviços públicos podem estar ligados a essa violência?
+
+## Convergência Institucional
+
+O projeto nasce da confluência de duas missões institucionais complementares. O Consilium, observatório de políticas públicas do Insper, tem como objetivo permanente fomentar o debate qualificado e baseado em evidências sobre gestão pública e direitos sociais. O Insper Data, laboratório de análise de dados da mesma instituição, aplica metodologia quantitativa para resolver problemas com impacto real. A pesquisa sobre feminicídio representa, portanto, um cruzamento natural entre essas duas vocações: ela exige rigor de dados e, ao mesmo tempo, sensibilidade para traduzir resultados em linguagem útil para formuladores de política.
+
+## Referencial Teórico
+
+A literatura sobre determinantes da violência de gênero em contextos urbanos organiza-se em torno de dois grandes eixos teóricos, ambos relevantes para o estudo do feminicídio em municípios paulistas.
+
+O primeiro eixo parte da **Teoria da Desorganização Social**, formulada por Shaw e McKay (1942), que associa a incidência de crimes à deterioração dos laços comunitários em territórios marcados por pobreza, alta rotatividade residencial e heterogeneidade étnica. Em ambientes socialmente desorganizados, o controle informal — aquele exercido por vizinhos, famílias e redes locais — enfraquece, reduzindo os mecanismos de proteção às vítimas em potencial. Essa perspectiva é complementada pela **Teoria da Atividade de Rotina**, de Cohen e Felson (1979), segundo a qual crimes acontecem quando um agressor motivado encontra um alvo acessível na ausência de guardiões capazes. Em conjunto, as duas teorias sugerem que o ambiente social e físico do município — e não apenas características individuais do agressor ou da vítima — desempenha papel central na determinação do risco.
+
+O segundo eixo aborda o chamado **paradoxo da urbanização**. À primeira vista, municípios mais urbanizados deveriam apresentar menores taxas de violência de gênero, pois oferecem maior acesso a redes de proteção governamental, maior autonomia financeira às mulheres e maior presença institucional do Estado. Contudo, a urbanização também tende a produzir relações sociais mais fragmentadas, pobreza urbana concentrada e o chamado *stress-induced violence* — violência induzida pelo estresse de condições de vida precárias em ambientes densamente populosos. Essa ambiguidade teórica, documentada por Sepúlveda et al. (2018) no contexto colombiano, é precisamente o que torna necessário um estudo específico para São Paulo: a relação entre urbanização e feminicídio não é linear nem previsível sem evidência empírica localizada.
+
+## Literatura Empírica de Referência
+
+Dois estudos empíricos são particularmente relevantes como referência metodológica. O primeiro, de M. Souza Lima (2025), realiza análise espacial do feminicídio no município de São Paulo e encontra que as regiões com maior presença do Estado não são necessariamente as de menor incidência — ao contrário, são frequentemente as de maior urbanização e densidade, o que confirma a ambiguidade descrita na literatura teórica e reforça a necessidade de controlar por múltiplas variáveis simultaneamente. O segundo, de Sepúlveda et al. (2018), analisa a heterogeneidade espacial dos fatores de feminicídio no departamento de Antioquia, na Colômbia, e encontra que variáveis como escolaridade, mobilidade forçada, pobreza, idade média feminina, gravidez na adolescência, histórico de violência doméstica e presença de tráfico de drogas têm coeficientes de influência distintos conforme a região — o que demonstra que os determinantes do feminicídio variam espacialmente e que uma análise estadual, como a proposta aqui, precisa ser sensível a essa heterogeneidade territorial.
+
+---
+
+# Desenvolvimento
+
+## Abordagem Metodológica Geral
+
+O projeto adota uma abordagem de pesquisa quantitativa aplicada, estruturada em cinco etapas sequenciais: coleta e integração de dados, tratamento e padronização, análise exploratória descritiva, construção de indicadores municipais e, em seguida, modelagem estatística explicativa. Cada etapa é documentada em notebooks Jupyter independentes, garantindo reprodutibilidade e facilitando a continuidade do trabalho por membros futuros. O código-fonte completo, junto com a documentação de cada decisão metodológica, está disponível no repositório do projeto.
+
+## Coleta e Integração de Dados
+
+### Fonte Principal
+
+A fonte primária é o conjunto de **boletins de ocorrência (BOs)** registrados pela Secretaria de Segurança Pública do Estado de São Paulo entre janeiro de 2022 e junho de 2025. Os dados foram obtidos em formato de planilhas CSV, organizados em sete arquivos semestrais:
+
+- 2022 (primeiro e segundo semestres)
+- 2023 (primeiro e segundo semestres)
+- 2024 (primeiro e segundo semestres)
+- 2025 (primeiro semestre)
+
+A integração inicial dessas sete bases resultou em um corpus de **4.792.971 registros**, abrangendo todos os tipos de ocorrência criminal registrados no estado ao longo do período. Esse volume expressivo oferece base estatística sólida para análise, embora demande limpeza e filtragem substanciais para isolar os casos de feminicídio.
+
+### Fonte Secundária
+
+Complementarmente, o projeto utiliza dados de **população municipal** do Instituto Brasileiro de Geografia e Estatística (IBGE), processados no notebook `preparar_populacao_municipios_sp.ipynb`. Esses dados fornecem estimativas populacionais por município, desagregadas por gênero, referentes aos anos de 2022 a 2025. A partir deles, calcula-se a média populacional de cada município ao longo do período, que serve como denominador para a construção das taxas normalizadas de feminicídio. Sem essa normalização, municípios mais populosos dominam artificialmente os rankings, distorcendo qualquer comparação territorial.
+
+## Tratamento e Padronização dos Dados
+
+O principal obstáculo técnico do projeto foi a **inconsistência estrutural entre as bases de diferentes anos**. As planilhas de 2022, 2023, 2024 e 2025 foram produzidas em contextos administrativos distintos, resultando em três categorias de inconsistência que precisaram ser resolvidas antes de qualquer análise.
+
+A primeira categoria diz respeito a **nomes de colunas divergentes para a mesma informação**. A coluna que identifica o município de ocorrência, por exemplo, aparece como `CIDADE` em 2022 e como `NOME_MUNICIPIO` nos anos seguintes. A coluna de período do dia é chamada de `DESCR_PERIODO` em 2022 e `DESC_PERIODO` nos demais anos. Essas diferenças, aparentemente pequenas, impedem qualquer concatenação direta das bases sem tratamento prévio.
+
+| Função | 2022 | 2023–2025 | Padrão Adotado |
+|---|---|---|---|
+| Período do dia | `DESCR_PERIODO` | `DESC_PERIODO` | `DESC_PERIODO` |
+| Município | `CIDADE` | `NOME_MUNICIPIO` | `NOME_MUNICIPIO` |
+| Circunscritivo | `CIRCUNSCRIÇÃO` | Variável | `CIRCUNSCRICAO` |
+
+A segunda categoria envolve **problemas de codificação de caracteres**: a base de 2025 apresenta inconsistências no uso de diacríticos, com acentos circunflexos ausentes em colunas que, nos anos anteriores, os incluíam. Isso gera duplicações semânticas onde deveriam existir categorias únicas.
+
+A terceira categoria é a **presença diferencial de colunas ao longo dos anos**. Campos como `BTL`, `CIA`, `CMD` e `COD_IBGE` foram introduzidos apenas em 2024–2025 e não existem nas bases de 2022–2023. Por outro lado, `DATA_REGISTRO` e `DESCR_SUBTIPOLOCAL` estão ausentes em 2022, enquanto `DATA_COMUNICACAO_BO` e `DESCR_TIPOLOCAL` não aparecem em 2023. Essa estrutura irregular inviabiliza análises longitudinais que dependam dessas colunas sem tratamento cuidadoso.
+
+Para resolver essas três camadas de inconsistência, foi desenvolvido o módulo Python `padronizar_colunas.py`, que implementa um dicionário de renomeação automática, padroniza a codificação de caracteres e seleciona o subconjunto de colunas presentes em todos os quatro anos. O resultado são dois datasets de saída. O `df_total` preserva todas as 29 colunas originais, incluindo valores ausentes onde colunas específicas não existiam; ele é útil para análises que requerem variáveis presentes apenas em alguns anos e que toleram dados parciais. O `df_total_completo`, recomendado como base principal da análise, mantém apenas as 23 colunas com cobertura integral nos quatro anos, resultando em zero valores ausentes para o período completo.
+
+## Filtragem e Identificação dos Casos de Feminicídio
+
+A identificação dos casos de feminicídio dentro da base de 4,8 milhões de registros foi realizada por meio de filtros sobre as colunas `NATUREZA_APURADA` e `RUBRICA`, implementados no notebook `analise_feminicidios_ref.ipynb`. A definição adotada segue os termos da Lei nº 13.104/2015, que tipifica o feminicídio como o homicídio doloso de mulher por razões da condição de sexo feminino, enquadrando-se em categorias como homicídio doloso e qualificado contra mulher e crimes com desfecho fatal vinculados à violência doméstica ou discriminação de gênero.
+
+Ao final desse processo de filtragem, a base de feminicídios resultante conta com **1.636 registros** para o período de janeiro de 2022 a junho de 2025, todos com as 23 variáveis completas. Esse número representa uma fração pequena do total de boletins — o que evidencia tanto a especificidade do crime dentro do sistema de registro criminal paulista quanto a necessidade de filtragem precisa para não confundir categorias correlatas.
+
+## Construção dos Indicadores Municipais
+
+A etapa de construção de indicadores visa transformar contagens absolutas em métricas comparáveis entre municípios de tamanhos muito distintos. O principal indicador calculado é a **taxa de feminicídio por 100 mil mulheres**, definida como:
+
+$$\text{Taxa} = \frac{\text{Casos de feminicídio}}{\text{População feminina do município}} \times 100{.}000$$
+
+Essa normalização é metodologicamente indispensável. Como será discutido na seção de resultados, o município de São Paulo lidera com larga margem o ranking de frequência absoluta — com 371 dos 1.636 casos registrados —, mas cai para a posição 300 quando os dados são normalizados pela população feminina. Sem esse ajuste, qualquer análise sobre quais municípios têm maior risco de feminicídio estaria na prática medindo apenas qual município tem mais habitantes.
+
+---
+
+# Resultados Parciais
+
+## Distribuição Temporal
+
+A análise da evolução anual dos casos revela um padrão que merece interpretação cuidadosa. Os anos de 2022 e 2023 apresentam volumes muito próximos, com 340 e 341 casos, respectivamente — sugerindo certa estabilidade no período inicial da série. O ano de 2024, no entanto, concentra 608 ocorrências, um salto de cerca de 78% em relação ao ano anterior. Já 2025 registra 347 casos, porém cobrindo apenas o primeiro semestre, o que projeta uma continuidade em patamar elevado se extrapolado para o ano completo.
+
+Esse pico em 2024 é o dado mais saliente da série temporal e exige cautela interpretativa. Ele pode refletir um aumento real na incidência do crime, mas também pode ser explicado parcialmente por mudanças nos critérios de classificação dos boletins, por ampliações na cobertura de registro ou por melhorias na capacitação das delegacias para tipificar o feminicídio de forma distinta do homicídio. Separar essas hipóteses requer análise mais aprofundada, que está prevista para a etapa de modelagem.
+
+A distribuição mensal agrega uma camada adicional de informação. Os menores volumes aparecem nos meses de fevereiro e julho, enquanto os maiores se concentram no último trimestre do ano, com destaque para outubro, novembro e dezembro — sendo dezembro o mês de maior intensidade na série agregada. Esse padrão não deve ser lido como sazonalidade rígida, mas como um sinal de que o fenômeno varia conforme o calendário social, possivelmente combinado com dinâmicas familiares, deslocamentos sazonais e variações na cobertura de notificação ao longo do ano.
+
+## Distribuição Territorial e o Efeito da Normalização
+
+A leitura territorial dos dados é onde a distinção entre frequência absoluta e taxa normalizada se torna mais evidente e mais relevante para a análise.
+
+Em termos absolutos, o município de São Paulo responde por 371 registros — aproximadamente 22,7% da base inteira. Depois da capital, os municípios com maior volume são Guarulhos, Campinas, São José do Rio Preto, Osasco, São Bernardo do Campo e São José dos Campos, todos grandes centros urbanos com população acima de 500 mil habitantes. Esse ranking reflete, em grande medida, a distribuição populacional do estado: municípios maiores tendem a concentrar mais casos simplesmente porque têm mais pessoas.
+
+Quando a normalização pela população feminina é aplicada, o panorama muda de forma significativa. O município de São Paulo, com sua enorme população, cai para a posição 300 no ranking. Municípios do Interior do estado, que na contagem bruta pareciam irrelevantes, passam a ocupar as primeiras posições. Mais surpreendente ainda é o comportamento da Região Metropolitana excluída a capital — aqui chamada de DEMACRO —, que após normalização ultrapassa a própria capital em taxa de feminicídio por 100 mil mulheres. Essa inversão de hierarquia não é trivial: ela indica que o risco proporcional de feminicídio é mais intenso fora da capital do que dentro dela, contrariando a percepção imediata que os números absolutos sugerem.
+
+A subdivisão do estado em três grandes territórios — Capital, DEMACRO e Interior — revela que o Interior concentra mais de 60% dos casos em todos os anos analisados, e que essa participação se mantém relativamente estável ao longo do período. Esse padrão de concentração, combinado com a análise de taxas, sugere que os determinantes do feminicídio no Interior do estado de São Paulo são estruturalmente distintos dos determinantes na capital e na região metropolitana — o que justifica, metodologicamente, a necessidade de um estudo que trate São Paulo não como unidade homogênea, mas como um território de alta heterogeneidade interna.
+
+## Datasets Gerados
+
+Além das análises descritivas, o projeto produziu dois datasets de uso direto nas próximas etapas:
+
+O `feminicidios_2022_2025.csv` reúne todos os 1.636 casos identificados, com 23 variáveis completas, e constitui a base de análise principal para a modelagem estatística. O `populacao_municipio_SP_media_2022_2025.csv` fornece a população média de cada município paulista ao longo do período analisado, desagregada por gênero, e serve como denominador na construção das taxas normalizadas.
+
+---
+
+# Conclusão e Próximos Passos
+
+## Síntese do Estágio Atual
+
+O projeto encontra-se em estágio intermediário entre a entrega descritiva e a modelagem explicativa. As etapas de coleta, integração, padronização e análise exploratória estão concluídas e documentadas. A base consolidada de feminicídios está pronta para uso, os indicadores municipais normalizados estão sendo construídos e o referencial teórico e empírico que orienta a escolha das variáveis explicativas foi levantado pelo Consilium. O que permanece em aberto são as etapas mais analíticas do projeto, que dependem das decisões metodológicas atualmente em curso.
+
+## Limitações Reconhecidas
+
+Antes de avançar, é importante registrar as limitações que a análise precisa ter em mente. A mais relevante é a **subnotificação**: os dados da SSP-SP refletem apenas os casos efetivamente registrados como feminicídio, e estudos como o da Agência Brasil (2026) indicam que o número real de vítimas pode ser até 38% maior. Isso implica que qualquer conclusão sobre taxas absolutas deve ser tratada como limite inferior do fenômeno real. A segunda limitação é que **correlações observadas não podem ser interpretadas como causalidade** sem um desenho metodológico adequado, que é precisamente o que a etapa de modelagem busca construir. Por fim, o período de 2022 a 2025 é relativamente curto para identificar tendências estruturais de longo prazo, e eventos conjunturais — como mudanças nas normas de classificação de crimes em 2024 — podem distorcer leituras temporais.
+
+## Próximas Etapas
+
+O caminho à frente está bem delineado. A etapa imediata é a **definição do modelo estatístico**, a ser realizada com apoio da orientadora Profa. Kelly Venezuela, com base nos papers metodológicos sobre violência de gênero em contextos municipais e na estrutura dos dados disponíveis. Em paralelo, o projeto está consolidando as **bases de dados complementares** que fornecerão as variáveis socioeconômicas explicativas — incluindo indicadores do IBGE e outras fontes —, selecionadas em diálogo com o referencial teórico levantado pelo Consilium.
+
+Com o modelo definido e as bases integradas, o projeto avançará para a **etapa de regressão e análise explicativa**, cujo objetivo é identificar quais características municipais se associam de forma sistemática com taxas mais altas de feminicídio, controlando por tamanho populacional e por outros cofatores relevantes. Os resultados serão então comparados com as hipóteses teóricas levantadas, verificando em que medida as predições da literatura — sobre urbanização, pobreza, redes de proteção e desorganização social — se confirmam ou se contradizem nos dados paulistas. A entrega final inclui a tradução desses resultados em um **mapa interativo** dos municípios, que permita comunicar os achados de forma acessível para públicos não técnicos e para formuladores de política pública.
+
+---
+
+# Referências
+
+Brasil. Lei nº 13.104, de 9 de março de 2015. *Altera o art. 121 do Decreto-Lei nº 2.848, de 7 de dezembro de 1940 — Código Penal —, para prever o feminicídio como circunstância qualificadora do crime de homicídio.* Diário Oficial da União, Brasília, DF, 10 mar. 2015.
+
+Cohen, L. E.; Felson, M. Social change and crime rate trends: A routine activity approach. *American Sociological Review*, v. 44, n. 4, p. 588–608, 1979.
+
+Fórum Brasileiro de Segurança Pública. *Anuário Brasileiro de Segurança Pública.* Edições 2022–2025. Disponível em: <https://forumseguranca.org.br>. Acesso em: 2026.
+
+Instituto Brasileiro de Geografia e Estatística (IBGE). *Estimativas de população dos municípios brasileiros.* Disponível em: <https://www.ibge.gov.br>. Acesso em: 2026.
+
+Organização das Nações Unidas (ONU). *Convenção sobre a Eliminação de Todas as Formas de Discriminação contra as Mulheres (CEDAW).* 1979. Ratificada pelo Brasil em 1984.
+
+Secretaria de Segurança Pública do Estado de São Paulo (SSP-SP). *Boletins de Ocorrência — Dados Estatísticos.* Período: janeiro de 2022 a junho de 2025.
+
+Sepúlveda, F. et al. The spatial heterogeneity of factors of feminicide: The case of Antioquia-Colombia. *Homicide Studies*, v. 22, n. 4, p. 344–368, 2018.
+
+Shaw, C. R.; McKay, H. D. *Juvenile delinquency and urban areas.* Chicago: University of Chicago Press, 1942.
+
+Souza Lima, M. *Análise espacial do feminicídio no município de São Paulo.* [Trabalho acadêmico]. São Paulo, 2025.
