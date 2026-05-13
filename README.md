@@ -43,7 +43,7 @@ Coleta → Integração → Limpeza/Padronização → Análise Exploratória �
 
 | Fonte | Descrição | Período |
 |---|---|---|
-| SSP-SP (Boletins de Ocorrência) | ~4,8 milhões de registros criminais | Jan 2022 – Jun 2025 |
+| SSP-SP (Boletins de Ocorrência) | ~4,8 milhões de registros criminais | Jan 2022 – Dez 2025 |
 | IBGE (Estimativas de População) | População por município e gênero | 2022–2025 |
 
 Os dados brutos da SSP-SP **não estão versionados** por volume. Para obtê-los, acesse o [portal de dados abertos da SSP-SP](https://www.ssp.sp.gov.br/estatistica/consultas).
@@ -96,7 +96,7 @@ Execute nesta sequência para reproduzir o pipeline completo:
 
 ## Principais Resultados (Etapa Descritiva)
 
-- **1.636 casos** de feminicídio identificados no período (Jan 2022 – Jun 2025)
+- **1.636 casos** de feminicídio identificados no período (Jan 2022 – Dez 2025)
 - **2024** apresenta pico expressivo com 608 ocorrências, salto de ~78% sobre 2023
 - Após normalização por população feminina, o município de **São Paulo cai da 1ª para a ~300ª posição** no ranking — municípios do Interior e da DEMACRO lideram em taxa por 100 mil mulheres
 - O **Interior concentra mais de 60%** dos casos em todos os anos analisados
