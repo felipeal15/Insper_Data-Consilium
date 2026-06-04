@@ -21,21 +21,52 @@ Coleta → Integração → Limpeza/Padronização → Análise Exploratória �
 
 ## Estrutura do Repositório
 
+Pipeline de dados em três camadas (`raw/` → `processed/` → `final/`); código em `src/`.
+
 ```
 .
-├── limpeza.ipynb                          # Pipeline principal: integração e padronização das bases
-├── analise_feminicidios_ref.ipynb         # Filtragem dos casos e análise exploratória
-├── preparar_populacao_municipios_sp.ipynb # Processamento dos dados de população (IBGE)
-├── api.ipynb                              # Consultas e integrações via API
-├── padronizar_colunas.py                  # Módulo de padronização de colunas entre anos
-├── municipio_sp.py                        # Utilitários para manipulação de municípios SP
-├── csvs/                                  # Outputs gerados (bases consolidadas)
-│   ├── feminicidios_2022_2025.csv         # 1.636 casos filtrados, 23 variáveis completas
+├── raw/                                   # Entradas (não derivadas)
+│   ├── ssp/
+│   │   ├── feminicidios_2022_2025.csv     # 1.636 casos (nível BO), 23 variáveis completas
+│   │   └── api_dados.csv                  # Contagem oficial SSP (API) por ano/mês/região
+│   ├── ibge/
+│   │   └── populacao_municipio_SP.csv     # População por município e ano (2022-2025)
+│   └── socioeconomicos/
+│       ├── alfabetizacao.csv              # SIDRA 9542 (Censo 2022)
+│       ├── anos_estudos.csv               # SIDRA 10062 (Censo 2022)
+│       └── pib_municipal.csv              # PIB municipal (2002-2023)
+├── processed/                             # Derivados intermediários
+│   ├── indicadores_municipais.csv         # 645 municípios × indicadores socioeconômicos
+│   ├── feminicidios_municipio_ano.csv     # 645 × 4 anos = 2.580 linhas (contagens c/ zeros)
 │   └── populacao_municipio_SP_media_2022_2025.csv
-├── DOCUMENTACAO_COLUNAS.md               # Dicionário de dados e mapeamento de colunas
+├── final/
+│   └── painel_feminicidio_sp.csv          # DATASET DE MODELAGEM (2.580 × 16)
+├── src/                                   # Código do pipeline
+│   ├── municipio_sp.py                    # Chaves de cruzamento de nomes de município
+│   ├── padronizar_colunas.py              # Padronização de colunas entre anos (SSP)
+│   ├── build_indicadores_municipais.py
+│   ├── build_feminicidios_municipio_ano.py
+│   ├── build_painel.py
+│   └── run_pipeline.py                    # Orquestrador (roda os 3 acima na ordem)
+├── limpeza.ipynb                          # (legado) integração/padronização dos BOs brutos
+├── analise_feminicidios_ref.ipynb         # (legado) análise exploratória / gráficos
+├── preparar_populacao_municipios_sp.ipynb # (legado) média populacional
+├── api.ipynb                              # Coleta da contagem oficial via API da SSP
+├── reports/                               # Relatório e figuras
+│   ├── relatorio_feminicidio_sp.qmd / .pdf
+│   └── img_dos_graficos/
+├── docs/
+│   ├── PIPELINE.md                        # Fluxo de dados e como reconstruir
+│   ├── DICIONARIO_PAINEL.md               # Dicionário do dataset final
+│   ├── ALERTAS_METODOLOGICOS.md           # ⚠️ Ler antes de modelar
+│   └── DOCUMENTACAO_COLUNAS.md            # Mapeamento de colunas entre anos
 ├── requirements.txt
 └── README.md
 ```
+
+> ⚠️ **Antes de modelar, leia [docs/ALERTAS_METODOLOGICOS.md](docs/ALERTAS_METODOLOGICOS.md).**
+> Pontos críticos: a base mistura feminicídio **consumado e tentativa**; a taxa usa população
+> **total** (não feminina); e os preditores socioeconômicos são **fixos no tempo** (Censo 2022).
 
 ---
 
@@ -84,13 +115,22 @@ pip install -r requirements.txt
 python -m ipykernel install --user --name insper-data-consilium --display-name "Python (insper-data-consilium)"
 ```
 
-### 4. Ordem de execução dos notebooks
+### 4. Reconstruir as bases derivadas
 
-Execute nesta sequência para reproduzir o pipeline completo:
+Com as entradas em `raw/` já versionadas, o pipeline regenera `processed/` e `final/`:
 
-1. `limpeza.ipynb` — integra e padroniza os 7 arquivos semestrais
-2. `preparar_populacao_municipios_sp.ipynb` — processa dados populacionais do IBGE
-3. `analise_feminicidios_ref.ipynb` — filtra feminicídios e gera análise exploratória
+```bash
+python src/run_pipeline.py
+```
+
+Para reprocessar a base bruta da SSP (~4,8 mi de BOs, no Google Drive) e a EDA, execute os
+notebooks legados nesta ordem (rodando a partir da raiz do repositório):
+
+1. `limpeza.ipynb` — integra/padroniza os arquivos semestrais → `raw/ssp/feminicidios_2022_2025.csv`
+2. `preparar_populacao_municipios_sp.ipynb` — média populacional → `processed/`
+3. `analise_feminicidios_ref.ipynb` — análise exploratória e gráficos
+
+> Detalhes do fluxo em [docs/PIPELINE.md](docs/PIPELINE.md).
 
 ---
 
@@ -105,9 +145,10 @@ Execute nesta sequência para reproduzir o pipeline completo:
 
 ## Próximas Etapas
 
-- [ ] Integração das bases socioeconômicas complementares (IBGE, Atlas Brasil)
+- [x] Integração das bases socioeconômicas (PIB, alfabetização, anos de estudo) → `final/painel_feminicidio_sp.csv`
+- [ ] Correção das inconsistências do relatório (ver `docs/ALERTAS_METODOLOGICOS.md`)
 - [ ] Definição do modelo de regressão com orientação da Profa. Kelly Venezuela
-- [ ] Modelagem estatística e comparação com hipóteses teóricas
+- [ ] Modelagem estatística (contagem/painel) e comparação com hipóteses teóricas
 - [ ] Construção do mapa interativo municipal
 
 ---

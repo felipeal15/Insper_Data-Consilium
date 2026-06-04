@@ -4,3 +4,8 @@ matplotlib
 seaborn
 jupyter
 ipykernel
+# Modelagem (Parte 6 — regressão de contagem / painel)
+statsmodels
+scikit-learn
+linearmodels
+requests
