@@ -34,13 +34,14 @@ Pipeline de dados em três camadas (`raw/` → `processed/` → `final/`); códi
 │   └── socioeconomicos/
 │       ├── alfabetizacao.csv              # SIDRA 9542 (Censo 2022)
 │       ├── anos_estudos.csv               # SIDRA 10062 (Censo 2022)
+│       ├── nivel-escolaridade.csv         # SIDRA 10061 (Censo 2022) — nível de instrução 18+
 │       └── pib_municipal.csv              # PIB municipal (2002-2023)
 ├── processed/                             # Derivados intermediários
 │   ├── indicadores_municipais.csv         # 645 municípios × indicadores socioeconômicos
 │   ├── feminicidios_municipio_ano.csv     # 645 × 4 anos = 2.580 linhas (contagens c/ zeros)
 │   └── populacao_municipio_SP_media_2022_2025.csv
 ├── final/
-│   └── painel_feminicidio_sp.csv          # DATASET DE MODELAGEM (2.580 × 16)
+│   └── painel_feminicidio_sp.csv          # DATASET DE MODELAGEM (2.580 × 14)
 ├── src/                                   # Código do pipeline
 │   ├── municipio_sp.py                    # Chaves de cruzamento de nomes de município
 │   ├── padronizar_colunas.py              # Padronização de colunas entre anos (SSP)
@@ -145,7 +146,8 @@ notebooks legados nesta ordem (rodando a partir da raiz do repositório):
 
 ## Próximas Etapas
 
-- [x] Integração das bases socioeconômicas (PIB, alfabetização, anos de estudo) → `final/painel_feminicidio_sp.csv`
+- [x] Integração das bases socioeconômicas (PIB per capita, alfabetização, anos de estudo, nível de escolaridade SIDRA 10061) → `final/painel_feminicidio_sp.csv`
+- [x] Fase 0: desfecho principal = consumado / robustez = total; taxa por população total
 - [ ] Correção das inconsistências do relatório (ver `docs/ALERTAS_METODOLOGICOS.md`)
 - [ ] Definição do modelo de regressão com orientação da Profa. Kelly Venezuela
 - [ ] Modelagem estatística (contagem/painel) e comparação com hipóteses teóricas

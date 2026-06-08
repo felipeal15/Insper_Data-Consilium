@@ -5,9 +5,17 @@ Constrói `processed/indicadores_municipais.csv`: um indicador por município
 (nível município, invariante no tempo — referência Censo 2022 / PIB 2022-2023).
 
 Fontes (raw/socioeconomicos/):
-  - alfabetizacao.csv  -> SIDRA Tabela 9542 (Censo 2022): pessoas 15+ alfabetizadas
-  - anos_estudos.csv   -> SIDRA Tabela 10062 (Censo 2022): anos médios de estudo 11+
-  - pib_municipal.csv  -> PIB municipal a preços correntes (2002-2023)
+  - alfabetizacao.csv       -> SIDRA 9542 (Censo 2022): pessoas 15+ alfabetizadas
+  - anos_estudos.csv        -> SIDRA 10062 (Censo 2022): anos médios de estudo 11+
+  - nivel-escolaridade.csv  -> SIDRA 10061 (Censo 2022): pessoas 18+ por nível de instrução
+  - pib_municipal.csv       -> PIB municipal a preços correntes (2002-2023)
+
+Indicadores produzidos (1 por município, recorte total):
+  pib_per_capita_2022, taxa_alfabetizacao, anos_medios_estudo,
+  pct_ensino_medio    (% 18+ com médio completo ou mais),
+  pct_ensino_superior (% 18+ com superior completo).
+Descartados por redundância: recortes femininos (r≈0,97 com o total) e pib_2023
+(r≈0,9998 com pib_2022). Recorte por raça: ausente nos CSVs baixados (não extraído).
 
 Chave de merge: id_municipio (código IBGE de 7 dígitos).
   - PIB já traz Cod_mun = id_municipio.
@@ -74,12 +82,15 @@ def carregar_pib() -> pd.DataFrame:
 
     pib["pib_reais"] = pib["PIB"].map(_parse_reais)
     pib = pib.rename(columns={"Cod_mun": "id_municipio", "Ano": "ano"})
+    # Mantemos só 2022 (alinhado ao Censo 2022). pib_2023 descartado:
+    # correlação pib_2022~pib_2023 ≈ 0,9998 (redundante).
     pib_wide = (
-        pib[pib["ano"].isin([2022, 2023])]
+        pib[pib["ano"] == 2022]
         .pivot_table(index="id_municipio", columns="ano", values="pib_reais")
-        .rename(columns={2022: "pib_2022", 2023: "pib_2023"})
+        .rename(columns={2022: "pib_2022"})
         .reset_index()
     )
+    pib_wide.columns.name = None
     return pib_wide
 
 
@@ -107,19 +118,16 @@ def carregar_alfabetizacao(cw: pd.DataFrame) -> pd.DataFrame:
 
     out = pd.DataFrame({"municipio_raw": mun[0]})
     out["pop15_total"] = num(3)
-    out["pop15_mulheres"] = num(5)
     out["alfab_total"] = num(6)
-    out["alfab_mulheres"] = num(8)
     out["chave"] = out["municipio_raw"].map(_chave)
     out["taxa_alfabetizacao"] = out["alfab_total"] / out["pop15_total"]
-    out["taxa_alfabetizacao_fem"] = out["alfab_mulheres"] / out["pop15_mulheres"]
 
     merged = out.merge(cw, on="chave", how="left")
     faltam = merged[merged["id_municipio"].isna()]["municipio_raw"].tolist()
     if faltam:
         print(f"[alfabetizacao] {len(faltam)} sem match:", faltam)
     return merged.dropna(subset=["id_municipio"])[
-        ["id_municipio", "taxa_alfabetizacao", "taxa_alfabetizacao_fem"]
+        ["id_municipio", "taxa_alfabetizacao"]
     ]
 
 
@@ -145,7 +153,6 @@ def carregar_anos_estudo(cw: pd.DataFrame) -> pd.DataFrame:
 
     out = pd.DataFrame({"municipio_raw": mun[0]})
     out["anos_medios_estudo"] = dec(2)       # 11+ total
-    out["anos_medios_estudo_fem"] = dec(4)   # 11+ mulheres
     out["chave"] = out["municipio_raw"].map(_chave)
 
     merged = out.merge(cw, on="chave", how="left")
@@ -153,7 +160,52 @@ def carregar_anos_estudo(cw: pd.DataFrame) -> pd.DataFrame:
     if faltam:
         print(f"[anos_estudos] {len(faltam)} sem match:", faltam)
     return merged.dropna(subset=["id_municipio"])[
-        ["id_municipio", "anos_medios_estudo", "anos_medios_estudo_fem"]
+        ["id_municipio", "anos_medios_estudo"]
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Nível de instrução (SIDRA 10061, Censo 2022) — pessoas 18+ por nível
+# ---------------------------------------------------------------------------
+def carregar_nivel_escolaridade(cw: pd.DataFrame) -> pd.DataFrame:
+    """% da população 18+ com ensino médio completo (ou mais) e com superior completo.
+
+    O arquivo traz DUAS tabelas (absolutos e %) e três linhas de sexo por município
+    (Total/Homens/Mulheres). Ficamos com a 1ª ocorrência de cada município no recorte
+    Sexo='Total' (= tabela de absolutos) e calculamos os percentuais nós mesmos.
+    Separador é VÍRGULA (diferente das outras bases, que usam ';').
+    """
+    raw = pd.read_csv(
+        os.path.join(RAW_SOCIO, "nivel-escolaridade.csv"),
+        sep=",",
+        header=None,
+        names=list(range(8)),
+        engine="python",
+        on_bad_lines="skip",
+        encoding="utf-8-sig",
+        dtype=str,
+    )
+    # Colunas: 0=Município 1=Sexo 2=Cor/raça 3=Total(18+)
+    #   4=Sem instr.+fund. incompleto   5=Fund. completo+médio incompleto
+    #   6=Médio completo+superior incompleto   7=Superior completo
+    mun = raw[raw[0].astype(str).str.endswith("(SP)")]
+    tot = mun[mun[1] == "Total"].drop_duplicates(subset=[0], keep="first").copy()
+
+    def num(col):
+        return pd.to_numeric(tot[col], errors="coerce")
+
+    pop18 = num(3)
+    out = pd.DataFrame({"municipio_raw": tot[0]})
+    out["pct_ensino_medio"] = (num(6) + num(7)) / pop18      # médio completo OU mais
+    out["pct_ensino_superior"] = num(7) / pop18              # superior completo
+    out["chave"] = out["municipio_raw"].map(_chave)
+
+    merged = out.merge(cw, on="chave", how="left")
+    faltam = merged[merged["id_municipio"].isna()]["municipio_raw"].tolist()
+    if faltam:
+        print(f"[nivel-escolaridade] {len(faltam)} sem match:", faltam)
+    return merged.dropna(subset=["id_municipio"])[
+        ["id_municipio", "pct_ensino_medio", "pct_ensino_superior"]
     ]
 
 
@@ -170,12 +222,14 @@ def main() -> None:
     pib = carregar_pib()
     alfab = carregar_alfabetizacao(cw)
     anos = carregar_anos_estudo(cw)
+    nivel = carregar_nivel_escolaridade(cw)
 
     ind = (
         base.merge(pop22, on="id_municipio", how="left")
         .merge(pib, on="id_municipio", how="left")
         .merge(alfab, on="id_municipio", how="left")
         .merge(anos, on="id_municipio", how="left")
+        .merge(nivel, on="id_municipio", how="left")
     )
     ind["pib_per_capita_2022"] = ind["pib_2022"] / ind["populacao_2022"]
 
@@ -184,12 +238,11 @@ def main() -> None:
         "municipio",
         "populacao_2022",
         "pib_2022",
-        "pib_2023",
         "pib_per_capita_2022",
         "taxa_alfabetizacao",
-        "taxa_alfabetizacao_fem",
         "anos_medios_estudo",
-        "anos_medios_estudo_fem",
+        "pct_ensino_medio",
+        "pct_ensino_superior",
     ]
     ind = ind[cols].sort_values("id_municipio").reset_index(drop=True)
 

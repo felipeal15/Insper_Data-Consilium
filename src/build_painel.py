@@ -32,29 +32,38 @@ def main() -> None:
     pop = pd.read_csv(os.path.join(RAW_IBGE, "populacao_municipio_SP.csv"))
     pop = pop[pop["ano"].isin(ANOS)][["id_municipio", "ano", "populacao"]]
     ind = pd.read_csv(os.path.join(PROCESSED, "indicadores_municipais.csv"))
-    ind_cols = [c for c in ind.columns if c not in ("municipio", "populacao_2022")]
-
+    # Preditores socioeconômicos levados ao painel (conjunto enxuto, ref. Censo 2022).
+    PREDITORES = [
+        "pib_per_capita_2022",
+        "taxa_alfabetizacao",
+        "anos_medios_estudo",
+        "pct_ensino_medio",
+        "pct_ensino_superior",
+    ]
     painel = (
         fem.merge(pop, on=["id_municipio", "ano"], how="left")
-        .merge(ind[ind_cols], on="id_municipio", how="left")
+        .merge(ind[["id_municipio", *PREDITORES]], on="id_municipio", how="left")
     )
 
-    painel["taxa_feminicidio_100k"] = painel["n_total"] / painel["populacao"] * 100_000
+    # DECISÃO DE PROJETO (Fase 0): taxa normalizada pela POPULAÇÃO TOTAL (não feminina).
+    # Desfecho PRINCIPAL = consumado; total (consumado + tentativa) = robustez.
     painel["taxa_feminicidio_consumado_100k"] = (
         painel["n_consumado"] / painel["populacao"] * 100_000
+    )
+    painel["taxa_feminicidio_total_100k"] = (
+        painel["n_total"] / painel["populacao"] * 100_000
     )
 
     ordem = [
         "id_municipio", "municipio", "ano",
-        # desfecho (alvo)
-        "n_total", "n_consumado", "n_tentativa",
-        "taxa_feminicidio_100k", "taxa_feminicidio_consumado_100k",
+        # contagens (para modelos de contagem: Poisson/BinNeg com offset log-pop)
+        "n_consumado", "n_total", "n_tentativa",
+        # taxas por 100 mil habitantes — consumado = principal, total = robustez
+        "taxa_feminicidio_consumado_100k", "taxa_feminicidio_total_100k",
         # exposição / denominador
         "populacao",
-        # preditores socioeconômicos (fixos no município, ref. Censo 2022 / PIB)
-        "pib_2022", "pib_2023", "pib_per_capita_2022",
-        "taxa_alfabetizacao", "taxa_alfabetizacao_fem",
-        "anos_medios_estudo", "anos_medios_estudo_fem",
+        # preditores socioeconômicos (fixos no município, ref. Censo 2022)
+        *PREDITORES,
     ]
     painel = painel[ordem].sort_values(["id_municipio", "ano"]).reset_index(drop=True)
 
@@ -63,13 +72,13 @@ def main() -> None:
     painel.to_csv(saida, index=False, encoding="utf-8-sig")
 
     print(f"Salvo: {saida}")
-    print(f"Dimensão: {painel.shape}  (esperado 2580 x 16)")
+    print(f"Dimensão: {painel.shape}  (esperado 2580 x 14)")
     print("\nCobertura (não-nulos):")
     print(painel.notna().sum())
     print("\nPrévia:")
     print(painel.head(8).to_string(index=False))
-    print("\nResumo taxa_feminicidio_100k:")
-    print(painel["taxa_feminicidio_100k"].describe())
+    print("\nResumo taxa_feminicidio_consumado_100k (principal):")
+    print(painel["taxa_feminicidio_consumado_100k"].describe())
 
 
 if __name__ == "__main__":

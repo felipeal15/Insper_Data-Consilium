@@ -13,6 +13,7 @@ raw/                                  (entradas — não derivadas)
 └── socioeconomicos/
     ├── alfabetizacao.csv             SIDRA 9542 (Censo 2022) — alfabetização 15+
     ├── anos_estudos.csv              SIDRA 10062 (Censo 2022) — anos médios de estudo 11+
+    ├── nivel-escolaridade.csv        SIDRA 10061 (Censo 2022) — pessoas 18+ por nível de instrução
     └── pib_municipal.csv             PIB municipal a preços correntes (2002-2023)
 
 processed/                            (derivados intermediários — 1 chave clara cada)
@@ -43,7 +44,7 @@ python src/build_painel.py                       # -> final/painel_feminicidio_s
 | Junção | Chave |
 |---|---|
 | PIB ↔ população | `id_municipio` (= `Cod_mun`, código IBGE 7 dígitos) — direto |
-| alfabetização / anos_estudo ↔ população | nome canônico (`chave_municipio_oficial`) → `id_municipio` |
+| alfabetização / anos_estudo / nível-escolaridade ↔ população | nome canônico (`chave_municipio_oficial`) → `id_municipio` |
 | feminicídios (BO) ↔ população | nome do BO (`chave_nome_bo`) → `id_municipio` |
 | painel | `id_municipio` + `ano` (socioeconômico entra constante no município) |
 
